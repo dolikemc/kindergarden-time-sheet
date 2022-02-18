@@ -1,0 +1,34 @@
+# settings and data for the generator
+name: 'Girotondo e.V.'
+country: 'DE'
+subdiv: 'BY'
+year: 2022
+language: 'DE'
+weekend: 'Wochenende'
+holiday: 'Feiertag'
+# format is used for all dates
+format: '%d/%m'
+color_weekend: '#010101'
+color_holiday: '#ff0101'
+# dates have to be in the format defined in the global section
+holidays:
+  - name: 'Weihnachtsferien'
+    dates:
+      - '03/01'
+      - '04/01'
+      - '05/01'
+      - '07/01'
+  - name: 'Brückentag'
+    dates:
+      - '27/05'
+      - '17/06'
+  - name: 'Sommerferien'
+    dates:
+      - '16/08'
+      - '17/08'
+      - '18/08'
+      - '19/08'
+  - name: 'Pädagogischer Tag'
+    color: '#777777'
+    dates:
+      - '26/09'
