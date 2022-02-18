@@ -55,6 +55,14 @@ class DateRow():
             day += timedelta(days=1)
 
     def add_row(self) -> int:
+        dv = DataValidation(showErrorMessage=True,
+                            showDropDown=None,
+                            showInputMessage=True,
+                            allowBlank=True, errorTitle=None, error=None,
+                            promptTitle=None, prompt=None, type='list',
+                            errorStyle=None, imeMode=None, operator=None,
+                            formula1='"krank,urlaub,kindkrank,fortbildung"', formula2=None)
+        self._worksheet.add_data_validation(dv)
         header = [('A1', 'Datum'), ('B1', 'Wochentag'), ('C1', 'Soll'), ('D1', 'Ist'), ('E1', 'Saldo'),
                   ('F1', 'Abwesenheit')]
         for cell in header:
@@ -76,7 +84,7 @@ class DateRow():
                     self._worksheet.cell(
                         row=index + 2, column=5,
                         value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>""),D{index + 2}-C{index + 2},"")')
-                    # dv.add(self._worksheet.cell(row=index + 2, column=6))
+                    dv.add(self._worksheet.cell(row=index + 2, column=6))
 
             self._worksheet.cell(row=index + 2, column=1, value=day[0])
             self._worksheet.cell(row=index + 2, column=2, value=day[0].strftime('%a'))

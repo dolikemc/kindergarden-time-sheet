@@ -18,3 +18,8 @@ class BasicTestCase(unittest.TestCase):
         self.assertTrue(dr)
         self.assertTrue(dr.add_row())
         wb.save('test.xlsx')
+
+    def test_validator(self):
+        wb = load_workbook('test2.xlsx')
+        for datat in wb.active.data_validations.dataValidation:
+            print(datat)
