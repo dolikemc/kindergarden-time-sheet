@@ -83,15 +83,15 @@ class DateHandler:
                 style = 'Accent2'
             if day_row.type == 3:
                 style = 'Accent6'
-            for c in range(1, 7):
-                if style:
+            if style:
+                for c in range(1, 7):
                     self._worksheet.cell(row=index + 2, column=c).style = styles[style]
-                else:
-                    self._worksheet.cell(row=index + 2, column=3, value=day_row.hours)
-                    self._worksheet.cell(
-                        row=index + 2, column=5,
-                        value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>""),D{index + 2}-C{index + 2},"")')
-                    dv.add(self._worksheet.cell(row=index + 2, column=6))
+            else:
+                self._worksheet.cell(row=index + 2, column=3, value=day_row.hours)
+                self._worksheet.cell(
+                    row=index + 2, column=5,
+                    value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>""),D{index + 2}-C{index + 2},"")')
+                dv.add(self._worksheet.cell(row=index + 2, column=6))
 
             self._worksheet.cell(row=index + 2, column=1, value=day_row.date)
             self._worksheet.cell(row=index + 2, column=2, value=day_row.date.strftime('%a'))
