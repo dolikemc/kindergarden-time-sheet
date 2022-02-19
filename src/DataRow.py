@@ -55,7 +55,7 @@ class DateHandler:
                 return_row.date, return_row.hours, return_row.type, return_row.name = day, 0, 2, self._config.get(
                     'holiday', 'Holiday')
             elif day.weekday() > 4:
-                return_row.date, return_row.hours, return_row.type, return_row.name = day, 0, 0, self._config.get(
+                return_row.date, return_row.hours, return_row.type, return_row.name = day, 0, 1, self._config.get(
                     'weekend', 'Weekend')
             elif day.isoformat() in self._special_days.keys():
                 return_row.date, return_row.hours, return_row.type, return_row.name = day, 0, 3, self._special_days[
