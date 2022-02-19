@@ -52,16 +52,16 @@ class DateHandler:
         for i in range(0, (date(year=self._config.get('year', date.today().year) + 1, month=1, day=1) -
                            date(year=self._config.get('year', date.today().year), month=1, day=1)).days):
             if day in self._holidays:
-                return_row.date, return_row.hours, return_row.type, return_row.name = day, 8.0, 1, self._config.get(
+                return_row.date, return_row.hours, return_row.type, return_row.name = day, 0, 2, self._config.get(
                     'holiday', 'Holiday')
             elif day.weekday() > 4:
                 return_row.date, return_row.hours, return_row.type, return_row.name = day, 0, 0, self._config.get(
                     'weekend', 'Weekend')
             elif day.isoformat() in self._special_days.keys():
-                return_row.date, return_row.hours, return_row.type, return_row.name = day, 0, 2, self._special_days[
+                return_row.date, return_row.hours, return_row.type, return_row.name = day, 0, 3, self._special_days[
                     day.isoformat()]
             else:
-                return_row.date = day
+                return_row.date, return_row.hours, return_row.type = day, 8.0, 0
             yield return_row
             day += timedelta(days=1)
 
