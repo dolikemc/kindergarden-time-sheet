@@ -4,7 +4,7 @@ from calendar import Calendar
 import holidays
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.worksheet.datavalidation import DataValidation
-from openpyxl.worksheet.dimensions import RowDimension
+from openpyxl.styles import Font, Alignment
 from openpyxl.styles.builtins import styles
 from yaml import load, SafeLoader
 from pathlib import Path
@@ -66,6 +66,7 @@ class DateHandler:
             day += timedelta(days=1)
 
     def add_row(self) -> int:
+        font = Font(size=16)
         dv = DataValidation(type='list', formula1='"krank,urlaub,kindkrank,fortbildung"')
         self._worksheet.add_data_validation(dv)
         header = [('A1', 'Datum'), ('B1', 'Wochentag'), ('C1', 'Soll'), ('D1', 'Ist'), ('E1', 'Saldo'),
@@ -96,4 +97,7 @@ class DateHandler:
             self._worksheet.cell(row=index + 2, column=1, value=day_row.date)
             self._worksheet.cell(row=index + 2, column=2, value=day_row.date.strftime('%a'))
             self._worksheet.row_dimensions[index + 2].height = 25
+            for c in range(1, 7):
+                self._worksheet.cell(row=index + 2, column=c).font = font
+                self._worksheet.cell(row=index + 2, column=c).alignment = Alignment(horizontal="center")
         return self._worksheet.max_row
