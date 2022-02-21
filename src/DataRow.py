@@ -91,7 +91,7 @@ class DateHandler:
                 self._worksheet.cell(row=index + 2, column=3, value=day_row.hours)
                 self._worksheet.cell(
                     row=index + 2, column=5,
-                    value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>""),IF(C{index+2}=0,D{index + 2}*1.5,D{index + 2}-C{index + 2}),"")')
+                    value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>"",F{index + 2}=""),IF(C{index + 2}=0,D{index + 2}*1.5,D{index + 2}-C{index + 2}),"")')
                 dv.add(self._worksheet.cell(row=index + 2, column=6))
 
             self._worksheet.cell(row=index + 2, column=1, value=day_row.date)
