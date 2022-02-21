@@ -35,6 +35,7 @@ class DateHandler:
         if sheet:
             self._worksheet = sheet
         self._config = config.config
+        self.font = Font(size=16)
 
         self._calendar = Calendar(firstweekday=0)
         self._holidays: Dict = holidays.country_holidays(
@@ -72,7 +73,7 @@ class DateHandler:
     def add_row(self, hours: List, stop: str = '') -> int:
         if len(hours) < 5:
             raise Exception('you have to provide hours for each weekday')
-        font = Font(size=16)
+
         dv = DataValidation(type='list', formula1='"krank,urlaub,kindkrank,fortbildung"')
         self._worksheet.add_data_validation(dv)
         header = [('A1', 'Datum'), ('B1', 'Wochentag'), ('C1', 'Soll'), ('D1', 'Ist'), ('E1', 'Saldo'),
@@ -81,18 +82,27 @@ class DateHandler:
             self._worksheet[cell[0]] = cell[1]
             self._worksheet[cell[0]].style = styles['Title']
             self._worksheet.column_dimensions[cell[0][0:1]].width = 20
-
+        if stop:
+            month_day = datetime.strptime(stop, self._config.get('format', '%d/%m'))
+        else:
+            month_day = date(year=self._config.get('year', datetime.today().year), month=12, day=31)
         for index, day_row in enumerate(self.year_iterator()):
+            if day_row.date > date(year=self._config.get('year', datetime.today().year),
+                                   month=month_day.month,
+                                   day=month_day.day):
+                return 1
+
             style = ''
             if day_row.type == 1:
-                style = 'Accent1'
+                style = '40 % - Accent1'
             if day_row.type == 2:
-                style = 'Accent2'
+                style = '40 % - Accent2'
             if day_row.type == 3:
-                style = 'Accent6'
+                style = '40 % - Accent6'
             if style:
                 for c in range(1, 7):
                     self._worksheet.cell(row=index + 2, column=c).style = styles[style]
+                self._worksheet.cell(row=index + 2, column=6, value=day_row.name)
             else:
                 self._worksheet.cell(row=index + 2, column=3, value=hours[day_row.date.weekday()])
                 self._worksheet.cell(
@@ -105,6 +115,16 @@ class DateHandler:
             self._worksheet.cell(row=index + 2, column=2, value=day_row.date.strftime('%a'))
             self._worksheet.row_dimensions[index + 2].height = 25
             for c in range(1, 7):
-                self._worksheet.cell(row=index + 2, column=c).font = font
+                self._worksheet.cell(row=index + 2, column=c).font = self.font
                 self._worksheet.cell(row=index + 2, column=c).alignment = Alignment(horizontal="center")
+
         return self._worksheet.max_row
+
+    def summary(self, name: str):
+        self._worksheet.merge_cells(start_row=8, start_column=8, end_row=8, end_column=16)
+        self._worksheet.cell(row=8, column=8, value=f'Zusammenfassung {name}')
+        self._worksheet.cell(row=8, column=8).style = styles['Output']
+        self._worksheet.cell(row=8, column=8).alignment = Alignment(horizontal="center")
+        self._worksheet.cell(row=8, column=8).font = self.font
+
+        pass

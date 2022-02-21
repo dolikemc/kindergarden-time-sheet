@@ -34,8 +34,19 @@ holidays:
 members:
   - name: 'Jessica P'
     hours: [ 8,8,8,8,7 ]
-    stop: ''
   - name: 'Joachim'
     hours: [ 8,8,8,8,7 ]
-    stop: '39/06'
-
+    stop: '30/06'
+  - name: 'Isabella'
+    hours: [ 8,8,8,8,7 ]
+  - name: 'Monica'
+    hours: [ 6,0,6,6,6 ]
+    stop: '30/06'
+  - name: 'Sara'
+    hours: [ 8,8,8,8,7 ]
+  - name: 'Chiara'
+    hours: [ 6,6,6,6,6 ]
+  - name: 'Gordana'
+    hours: [ 8,7,8,7,0 ]
+  - name: 'Jessica C'
+    hours: [ 8,8,8,8,7 ]
