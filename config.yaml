@@ -29,6 +29,13 @@ holidays:
       - '18/08'
       - '19/08'
   - name: 'Pädagogischer Tag'
-    color: '#777777'
     dates:
       - '26/09'
+members:
+  - name: 'Jessica P'
+    hours: [ 8,8,8,8,7 ]
+    stop: ''
+  - name: 'Joachim'
+    hours: [ 8,8,8,8,7 ]
+    stop: '39/06'
+
