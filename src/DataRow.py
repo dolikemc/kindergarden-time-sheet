@@ -4,7 +4,7 @@ from calendar import Calendar
 import holidays
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.worksheet.datavalidation import DataValidation
-from openpyxl.styles import Font, Alignment
+from openpyxl.styles import Font, Alignment, Border, Side
 from openpyxl.styles.builtins import styles
 from yaml import load, SafeLoader
 from pathlib import Path
@@ -36,6 +36,7 @@ class DateHandler:
             self._worksheet = sheet
         self._config = config.config
         self.font = Font(size=16)
+        self.side = Side(style='medium', color='00000000')
 
         self._calendar = Calendar(firstweekday=0)
         self._holidays: Dict = holidays.country_holidays(
@@ -60,8 +61,7 @@ class DateHandler:
                 return_row.date, return_row.type, return_row.name = day, 2, self._config.get(
                     'holiday', 'Holiday')
             elif day.weekday() > 4:
-                return_row.date, return_row.type, return_row.name = day, 1, self._config.get(
-                    'weekend', 'Weekend')
+                return_row.date, return_row.type, return_row.name = day, 1, ''
             elif day.isoformat() in self._special_days.keys():
                 return_row.date, return_row.type, return_row.name = day, 3, self._special_days[
                     day.isoformat()]
@@ -107,7 +107,8 @@ class DateHandler:
                 self._worksheet.cell(row=index + 2, column=3, value=hours[day_row.date.weekday()])
                 self._worksheet.cell(
                     row=index + 2, column=5,
-                    value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>"",F{index + 2}=""),IF(C{index + 2}=0,D{index + 2}*1.5,D{index + 2}-C{index + 2}),"")')
+                    value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>"",F{index + 2}=""),'
+                          f'IF(C{index + 2}=0,D{index + 2}*1.5,D{index + 2}-C{index + 2}),"")')
                 dv.add(self._worksheet.cell(row=index + 2, column=6))
 
             self._worksheet.cell(row=index + 2, column=1, value=day_row.date)
@@ -121,10 +122,49 @@ class DateHandler:
         return self._worksheet.max_row
 
     def summary(self, name: str):
+
+        for i in ('G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'):
+            self._worksheet.column_dimensions[i].width = 20
+        # header for name
         self._worksheet.merge_cells(start_row=8, start_column=8, end_row=8, end_column=16)
         self._worksheet.cell(row=8, column=8, value=f'Zusammenfassung {name}')
         self._worksheet.cell(row=8, column=8).style = styles['Output']
         self._worksheet.cell(row=8, column=8).alignment = Alignment(horizontal="center")
         self._worksheet.cell(row=8, column=8).font = self.font
+        # self._worksheet.cell(row=8, column=8).border = Border(left=self.side, right=self.side)
 
-        pass
+        # header holiday
+        self._worksheet.merge_cells(start_row=10, start_column=8, end_row=10, end_column=12)
+        self._worksheet.cell(row=10, column=8, value=f'Urlaubstage')
+        self._worksheet.cell(row=10, column=8).style = styles['40 % - Accent3']
+        self._worksheet.cell(row=10, column=8).alignment = Alignment(horizontal="center")
+        self._worksheet.cell(row=10, column=8).font = self.font
+
+        # header overtime
+        self._worksheet.merge_cells(start_row=10, start_column=14, end_row=10, end_column=16)
+        self._worksheet.cell(row=10, column=14, value=f'Überstunden')
+        self._worksheet.cell(row=10, column=14).style = styles['40 % - Accent3']
+        self._worksheet.cell(row=10, column=14).alignment = Alignment(horizontal="center")
+        self._worksheet.cell(row=10, column=14).font = self.font
+
+        # holiday cells
+        self._worksheet.cell(row=11, column=8, value=f"Rest {self._config.get('year', datetime.today().year) - 1}")
+        self._worksheet.cell(row=11, column=8).style = styles['40 % - Accent3']
+        self._worksheet.cell(row=11, column=8).alignment = Alignment(horizontal="center")
+        self._worksheet.cell(row=11, column=8).font = self.font
+        self._worksheet.cell(row=11, column=9, value=f"Soll {self._config.get('year', datetime.today().year)}")
+        self._worksheet.cell(row=11, column=9).style = styles['40 % - Accent3']
+        self._worksheet.cell(row=11, column=9).alignment = Alignment(horizontal="center")
+        self._worksheet.cell(row=11, column=9).font = self.font
+        self._worksheet.cell(row=11, column=10, value=f"Summe")
+        self._worksheet.cell(row=11, column=10).style = styles['40 % - Accent3']
+        self._worksheet.cell(row=11, column=10).alignment = Alignment(horizontal="center")
+        self._worksheet.cell(row=11, column=10).font = self.font
+        self._worksheet.cell(row=11, column=11, value=f"Genommen")
+        self._worksheet.cell(row=11, column=11).style = styles['40 % - Accent3']
+        self._worksheet.cell(row=11, column=11).alignment = Alignment(horizontal="center")
+        self._worksheet.cell(row=11, column=11).font = self.font
+        self._worksheet.cell(row=11, column=12, value=f"Offen")
+        self._worksheet.cell(row=11, column=12).style = styles['40 % - Accent3']
+        self._worksheet.cell(row=11, column=12).alignment = Alignment(horizontal="center")
+        self._worksheet.cell(row=11, column=12).font = self.font
