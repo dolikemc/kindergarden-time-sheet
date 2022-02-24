@@ -6,6 +6,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.styles import Font, Alignment, Border, Side
 from openpyxl.styles.builtins import styles
+from openpyxl.cell.cell import Cell
 from yaml import load, SafeLoader
 from pathlib import Path
 
@@ -74,34 +75,18 @@ class DateHandler:
         if len(hours) < 5:
             raise Exception('you have to provide hours for each weekday')
 
-        dv = DataValidation(type='list', formula1='"krank,urlaub,kindkrank,fortbildung"')
-        self._worksheet.add_data_validation(dv)
-        header = [('A1', 'Datum'), ('B1', 'Wochentag'), ('C1', 'Soll'), ('D1', 'Ist'), ('E1', 'Saldo'),
-                  ('F1', 'Abwesenheit')]
-        for cell in header:
-            self._worksheet[cell[0]] = cell[1]
-            self._worksheet[cell[0]].style = styles['Title']
-            self._worksheet.column_dimensions[cell[0][0:1]].width = 20
-        if stop:
-            month_day = datetime.strptime(stop, self._config.get('format', '%d/%m'))
-        else:
-            month_day = date(year=self._config.get('year', datetime.today().year), month=12, day=31)
+        dv = self.create_header()
+        month_day = self.determine_stop_date(stop)
         for index, day_row in enumerate(self.year_iterator()):
-            if day_row.date > date(year=self._config.get('year', datetime.today().year),
-                                   month=month_day.month,
-                                   day=month_day.day):
+
+            # stop criteria for a member
+            if day_row.date > month_day:
                 return 1
 
-            style = ''
-            if day_row.type == 1:
-                style = '40 % - Accent1'
-            if day_row.type == 2:
-                style = '40 % - Accent2'
-            if day_row.type == 3:
-                style = '40 % - Accent6'
-            if style:
+            if day_row.type:
                 for c in range(1, 7):
-                    self._worksheet.cell(row=index + 2, column=c).style = styles[style]
+                    self._worksheet.cell(row=index + 2, column=c).style = \
+                        self._config.get('styles', ['Output', 'Output', 'Output'])[day_row.type - 1]
                 self._worksheet.cell(row=index + 2, column=6, value=day_row.name)
             else:
                 self._worksheet.cell(row=index + 2, column=3, value=hours[day_row.date.weekday()])
@@ -121,50 +106,109 @@ class DateHandler:
 
         return self._worksheet.max_row
 
+    def determine_stop_date(self, stop):
+        if stop:
+            month_day = datetime.strptime(stop, self._config.get('format', '%d/%m'))
+        else:
+            month_day = date(year=self._config.get('year', datetime.today().year), month=12, day=31)
+        return date(year=self._config.get('year', datetime.today().year),
+                    month=month_day.month,
+                    day=month_day.day)
+
+    def create_header(self):
+        dv = DataValidation(type='list', formula1='"krank,urlaub,kindkrank,fortbildung"')
+        self._worksheet.add_data_validation(dv)
+        header = [('A1', 'Datum'), ('B1', 'Wochentag'), ('C1', 'Soll'), ('D1', 'Ist'), ('E1', 'Saldo'),
+                  ('F1', 'Abwesenheit')]
+        for cell in header:
+            self._worksheet[cell[0]] = cell[1]
+            self._worksheet[cell[0]].style = styles['Title']
+            self._worksheet.column_dimensions[cell[0][0:1]].width = 20
+        return dv
+
     def summary(self, name: str):
 
-        for i in ('G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'):
+        for i in ('G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'):
             self._worksheet.column_dimensions[i].width = 20
         # header for name
         self._worksheet.merge_cells(start_row=8, start_column=8, end_row=8, end_column=16)
-        self._worksheet.cell(row=8, column=8, value=f'Zusammenfassung {name}')
-        self._worksheet.cell(row=8, column=8).style = styles['Output']
-        self._worksheet.cell(row=8, column=8).alignment = Alignment(horizontal="center")
-        self._worksheet.cell(row=8, column=8).font = self.font
-        # self._worksheet.cell(row=8, column=8).border = Border(left=self.side, right=self.side)
+        self.set_cell_std_format(from_row=8, from_column=8, style_number=4, text=f'Zusammenfassung {name}')
 
         # header holiday
         self._worksheet.merge_cells(start_row=10, start_column=8, end_row=10, end_column=12)
-        self._worksheet.cell(row=10, column=8, value=f'Urlaubstage')
-        self._worksheet.cell(row=10, column=8).style = styles['40 % - Accent3']
-        self._worksheet.cell(row=10, column=8).alignment = Alignment(horizontal="center")
-        self._worksheet.cell(row=10, column=8).font = self.font
+        self.set_cell_std_format(from_row=10, from_column=8, style_number=3, text='Urlaubstage')
+        self.set_cell_std_format(from_row=11, from_column=8, style_number=3,
+                                 text=f"Rest {self._config.get('year', datetime.today().year) - 1}")
+        self.set_cell_std_format(from_row=11, from_column=9, style_number=3,
+                                 text=f"Soll {self._config.get('year', datetime.today().year)}")
+        self.set_cell_std_format(from_row=11, from_column=10, style_number=3, text="Summe")
+        self.set_cell_std_format(from_row=11, from_column=11, style_number=3, text="Genommen")
+        self.set_cell_std_format(from_row=11, from_column=12, style_number=3, text="Offen")
 
         # header overtime
         self._worksheet.merge_cells(start_row=10, start_column=14, end_row=10, end_column=16)
-        self._worksheet.cell(row=10, column=14, value=f'Überstunden')
-        self._worksheet.cell(row=10, column=14).style = styles['40 % - Accent3']
-        self._worksheet.cell(row=10, column=14).alignment = Alignment(horizontal="center")
-        self._worksheet.cell(row=10, column=14).font = self.font
+        self.set_cell_std_format(from_row=10, from_column=14, style_number=3, text='Überstunden')
+        self.set_cell_std_format(from_row=11, from_column=14, style_number=3,
+                                 text=f"Rest {self._config.get('year', datetime.today().year) - 1}")
+        self.set_cell_std_format(from_row=11, from_column=15, style_number=3,
+                                 text=f"{self._config.get('year', datetime.today().year)}")
+        self.set_cell_std_format(from_row=11, from_column=16, style_number=3, text="Summe")
 
         # holiday cells
-        self._worksheet.cell(row=11, column=8, value=f"Rest {self._config.get('year', datetime.today().year) - 1}")
-        self._worksheet.cell(row=11, column=8).style = styles['40 % - Accent3']
-        self._worksheet.cell(row=11, column=8).alignment = Alignment(horizontal="center")
-        self._worksheet.cell(row=11, column=8).font = self.font
-        self._worksheet.cell(row=11, column=9, value=f"Soll {self._config.get('year', datetime.today().year)}")
-        self._worksheet.cell(row=11, column=9).style = styles['40 % - Accent3']
-        self._worksheet.cell(row=11, column=9).alignment = Alignment(horizontal="center")
-        self._worksheet.cell(row=11, column=9).font = self.font
-        self._worksheet.cell(row=11, column=10, value=f"Summe")
-        self._worksheet.cell(row=11, column=10).style = styles['40 % - Accent3']
-        self._worksheet.cell(row=11, column=10).alignment = Alignment(horizontal="center")
-        self._worksheet.cell(row=11, column=10).font = self.font
-        self._worksheet.cell(row=11, column=11, value=f"Genommen")
-        self._worksheet.cell(row=11, column=11).style = styles['40 % - Accent3']
-        self._worksheet.cell(row=11, column=11).alignment = Alignment(horizontal="center")
-        self._worksheet.cell(row=11, column=11).font = self.font
-        self._worksheet.cell(row=11, column=12, value=f"Offen")
-        self._worksheet.cell(row=11, column=12).style = styles['40 % - Accent3']
-        self._worksheet.cell(row=11, column=12).alignment = Alignment(horizontal="center")
-        self._worksheet.cell(row=11, column=12).font = self.font
+        self.set_cell_std_format(from_row=12, from_column=8)
+        self.set_cell_std_format(from_row=12, from_column=9, text='30')
+        self.set_cell_std_format(from_row=12, from_column=10, text="=H12+I12")
+        self.set_cell_std_format(from_row=12, from_column=11, text='=COUNTIF(F2:F367,"urlaub")')
+        self.set_cell_std_format(from_row=12, from_column=12, text="=J12-K12")
+
+        # overtiem cells
+        self.set_cell_std_format(from_row=12, from_column=14)
+        self.set_cell_std_format(from_row=12, from_column=15, text='=SUM(E2:E367)')
+        self.set_cell_std_format(from_row=12, from_column=16, text="=N12+O12")
+
+        # header training
+        self._worksheet.merge_cells(start_row=14, start_column=8, end_row=14, end_column=10)
+        self.set_cell_std_format(from_row=14, from_column=8, style_number=3, text='Fortbildung')
+        self.set_cell_std_format(from_row=15, from_column=8, style_number=3,
+                                 text=f"Soll {self._config.get('year', datetime.today().year)}")
+        self.set_cell_std_format(from_row=15, from_column=9, style_number=3, text=f"Genommen")
+        self.set_cell_std_format(from_row=15, from_column=10, style_number=3, text="Offen")
+
+        # header sick
+        self.set_cell_std_format(from_row=14, from_column=12, style_number=3, text="Krankheitstage")
+        self.set_cell_std_format(from_row=15, from_column=12, style_number=3,
+                                 text=f"{self._config.get('year', datetime.today().year)}")
+
+        # header child sick
+        self._worksheet.merge_cells(start_row=14, start_column=14, end_row=14, end_column=16)
+        self.set_cell_std_format(from_row=14, from_column=14, style_number=3, text='Kinder Krankeitstage')
+        self.set_cell_std_format(from_row=15, from_column=14, style_number=3,
+                                 text=f"Soll {self._config.get('year', datetime.today().year)}")
+        self.set_cell_std_format(from_row=15, from_column=15, style_number=3, text="Genommen")
+        self.set_cell_std_format(from_row=15, from_column=16, style_number=3, text="Offen")
+
+        # training cells
+        self.set_cell_std_format(from_row=16, from_column=8, text='5')
+        self.set_cell_std_format(from_row=16, from_column=9, text='=COUNTIF(F2:F367,"fortbildung")')
+        self.set_cell_std_format(from_row=16, from_column=10, text="=H16-I16")
+
+        # sick cells
+        self.set_cell_std_format(from_row=16, from_column=12, text='=COUNTIF(F2:F367,"krank")')
+
+        # child sick cells
+        self.set_cell_std_format(from_row=16, from_column=14, text='10')
+        self.set_cell_std_format(from_row=16, from_column=15, text='=COUNTIF(F2:F367,"kindkrank")')
+        self.set_cell_std_format(from_row=16, from_column=16, text="=N16-O16")
+
+    def set_cell_std_format(self, from_row: int, from_column: int, style_number: int = None, text: str = None,
+                            number_format: str = None) -> Cell:
+        cell: Cell = self._worksheet.cell(row=from_row, column=from_column)
+        if style_number:
+            cell.style = self._config.get('styles', ['Output', 'Output', 'Output', 'Output'])[style_number]
+        if text:
+            cell.value = text
+        if number_format in ['d/m', '0.00']:
+            cell.number_format = number_format
+        cell.font = self.font
+        cell.alignment = Alignment(horizontal="center")
+        return cell

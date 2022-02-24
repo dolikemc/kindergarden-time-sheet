@@ -8,8 +8,12 @@ weekend: 'Wochenende'
 holiday: 'Feiertag'
 # format is used for all dates
 format: '%d/%m'
-color_weekend: '#010101'
-color_holiday: '#ff0101'
+styles:
+  - '20 % - Accent6'
+  - '20 % - Accent2'
+  - '20 % - Accent1'
+  - '40 % - Accent3'
+  - 'Output'
 # dates have to be in the format defined in the global section
 holidays:
   - name: 'Weihnachtsferien'
@@ -18,6 +22,10 @@ holidays:
       - '04/01'
       - '05/01'
       - '07/01'
+      - '27/12'
+      - '28/12'
+      - '29/12'
+      - '30/12'
   - name: 'Brückentag'
     dates:
       - '27/05'

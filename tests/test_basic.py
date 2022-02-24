@@ -19,7 +19,7 @@ class BasicTestCase(unittest.TestCase):
         wb = Workbook()
         dr = DateHandler(wb.active, config=self.config)
         self.assertTrue(dr)
-        self.assertTrue(dr.add_row())
+        self.assertTrue(dr.add_row(hours=[5, 5, 7, 9, 2]))
         wb.save('test.xlsx')
 
     def test_validator(self):
