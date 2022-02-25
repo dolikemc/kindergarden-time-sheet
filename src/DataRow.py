@@ -89,11 +89,17 @@ class DateHandler:
                         self._config.get('styles', ['Output', 'Output', 'Output'])[day_row.type - 1]
                 self._worksheet.cell(row=index + 2, column=6, value=day_row.name)
             else:
-                self._worksheet.cell(row=index + 2, column=3, value=hours[day_row.date.weekday()])
+                self._worksheet.cell(row=index + 2, column=4, value='00:00')
+                self._worksheet.cell(row=index + 2, column=4).number_format = '[hh]":"mm'
+                date_with_hour = datetime(day_row.date.year, day_row.date.month, day_row.date.day,
+                                          hour=hours[day_row.date.weekday()], minute=0, second=0)
+                self._worksheet.cell(row=index + 2, column=3, value=f"0{hours[day_row.date.weekday()]}:00")
+                self._worksheet.cell(row=index + 2, column=3).number_format = '[hh]":"mm'
                 self._worksheet.cell(
                     row=index + 2, column=5,
                     value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>"",F{index + 2}=""),'
                           f'IF(C{index + 2}=0,D{index + 2}*1.5,D{index + 2}-C{index + 2}),"")')
+                self._worksheet.cell(row=index + 2, column=5).number_format = '[hh]":"mm'
                 dv.add(self._worksheet.cell(row=index + 2, column=6))
 
             self._worksheet.cell(row=index + 2, column=1, value=day_row.date)
@@ -162,9 +168,9 @@ class DateHandler:
         self.set_cell_std_format(from_row=12, from_column=12, text="=J12-K12")
 
         # overtiem cells
-        self.set_cell_std_format(from_row=12, from_column=14)
-        self.set_cell_std_format(from_row=12, from_column=15, text='=SUM(E2:E367)')
-        self.set_cell_std_format(from_row=12, from_column=16, text="=N12+O12")
+        self.set_cell_std_format(from_row=12, from_column=14, number_format='[hh]":"mm')
+        self.set_cell_std_format(from_row=12, from_column=15, text='=SUM(E2:E367)', number_format='[hh]":"mm')
+        self.set_cell_std_format(from_row=12, from_column=16, text="=N12+O12", number_format='[hh]":"mm')
 
         # header training
         self._worksheet.merge_cells(start_row=14, start_column=8, end_row=14, end_column=10)
