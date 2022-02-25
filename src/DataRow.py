@@ -98,7 +98,15 @@ class DateHandler:
                 self._worksheet.cell(
                     row=index + 2, column=5,
                     value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>"",F{index + 2}=""),'
-                          f'IF(C{index + 2}=0,D{index + 2}*1.5,D{index + 2}-C{index + 2}),"")')
+                          f'IF(C{index + 2}=0,D{index + 2}*1.5,'
+                    # f'D{index + 2}-C{index + 2}'
+                          f'TEXT(ABS(D{index + 2}-C{index + 2}),'
+                          f'IF(D{index + 2}<C{index + 2},"-","")&"[hh]:mm")'
+                          f'),"")')
+                # f'TEXT(ABS(D{index + 2}-C{index + 2}),IF(D{index + 2}<C{index + 2},"-",) &"hh:mm'
+                #
+                # =TEXT(ABS(C7-B7);WENN(B7<C7;"-";) &"hh:mm")
+
                 self._worksheet.cell(row=index + 2, column=5).number_format = '[hh]":"mm'
                 dv.add(self._worksheet.cell(row=index + 2, column=6))
 
@@ -213,7 +221,7 @@ class DateHandler:
             cell.style = self._config.get('styles', ['Output', 'Output', 'Output', 'Output'])[style_number]
         if text:
             cell.value = text
-        if number_format in ['d/m', '0.00']:
+        if number_format in ['d/m', '0.00', '[hh]":"mm']:
             cell.number_format = number_format
         cell.font = self.font
         cell.alignment = Alignment(horizontal="center")
