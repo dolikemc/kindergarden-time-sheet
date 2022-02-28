@@ -202,6 +202,10 @@ class DateHandler:
                                  # "=N12+O12",
                                  number_format='[hh]":"mm')
 
+        self.set_cell_std_format(from_row=12, from_column=18,
+                                 text='=IF(LEFT(N12)="-",_xlfn.NUMBERVALUE(RIGHT(0&N12,5)),_xlfn.NUMBERVALUE(N12))',
+                                 number_format='[hh]":"mm')
+
         # header training
         self._worksheet.merge_cells(start_row=14, start_column=8, end_row=14, end_column=10)
         self.set_cell_std_format(from_row=14, from_column=8, style_number=3, text='Fortbildung')
