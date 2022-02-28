@@ -4,7 +4,7 @@ from calendar import Calendar
 import holidays
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.worksheet.datavalidation import DataValidation
-from openpyxl.styles import Font, Alignment, Border, Side
+from openpyxl.styles import Font, Alignment, Color, Side
 from openpyxl.styles.builtins import styles
 from openpyxl.cell.cell import Cell
 from yaml import load, SafeLoader
@@ -88,13 +88,13 @@ class DateHandler:
                     self._worksheet.cell(row=index + 2, column=c).style = \
                         self._config.get('styles', ['Output', 'Output', 'Output'])[day_row.type - 1]
                 self._worksheet.cell(row=index + 2, column=6, value=day_row.name)
+                self._worksheet.cell(row=index + 2, column=5, value="00:00")
+
             else:
                 self._worksheet.cell(row=index + 2, column=4, value='00:00')
                 self._worksheet.cell(row=index + 2, column=4).number_format = '[hh]:mm'
-                date_with_hour = datetime(day_row.date.year, day_row.date.month, day_row.date.day,
-                                          hour=hours[day_row.date.weekday()], minute=0, second=0)
+
                 self._worksheet.cell(row=index + 2, column=3, value=f"0{hours[day_row.date.weekday()]}:00")
-                self._worksheet.cell(row=index + 2, column=3).number_format = '[hh]:mm'
                 self._worksheet.cell(
                     row=index + 2, column=5,
                     value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>"",F{index + 2}=""),'
@@ -105,13 +105,22 @@ class DateHandler:
                           f'),"")')
                 dv.add(self._worksheet.cell(row=index + 2, column=6))
 
+            self._worksheet.cell(row=index + 2, column=3).number_format = '[hh]:mm'
             self._worksheet.cell(row=index + 2, column=1, value=day_row.date)
             self._worksheet.cell(row=index + 2, column=1).number_format = 'd/m'
             self._worksheet.cell(row=index + 2, column=2, value=day_row.date.strftime('%a'))
             self._worksheet.row_dimensions[index + 2].height = 25
+
             for c in range(1, 7):
                 self._worksheet.cell(row=index + 2, column=c).font = self.font
                 self._worksheet.cell(row=index + 2, column=c).alignment = Alignment(horizontal="center")
+
+            if not self._worksheet.cell(row=index + 2, column=4).value:
+                print(self._worksheet.cell(row=index + 2, column=4).value)
+                self._worksheet.cell(row=index + 2, column=5).font = Font(
+                    color=self._worksheet.cell(row=index + 2, column=5).fill.fgColor,
+                    # '00FFFFCC',
+                    size=16)
 
         return self._worksheet.max_row
 
@@ -173,8 +182,16 @@ class DateHandler:
         # overtiem cells
         # =TEXT(ABS(SUMME((-1+2*(LINKS(G11:G22)<>"-"))*(RECHTS(0&G11:G22;5))));WENN(SUMME((-1+2*(LINKS(G11:G22)<>"-"))*(RECHTS(0&G11:G22;5)))<0;"-";)&"[hh]:mm:ss")
         self.set_cell_std_format(from_row=12, from_column=14, number_format='[hh]":"mm')
-        self.set_cell_std_format(from_row=12, from_column=15, text='=SUM(E2:E367)', number_format='[hh]":"mm')
-        self.set_cell_std_format(from_row=12, from_column=16, text="=N12+O12", number_format='[hh]":"mm')
+        self.set_cell_std_format(from_row=12, from_column=15,
+                                 text='=TEXT(ABS(SUM((-1+2*(LEFT(E2:E367)<>"-"))*(RIGHT(0&E2:E367,5)))),'
+                                      'IF(SUM((-1+2*(LEFT(E2:E367)<>"-"))*(RIGHT(0&E2:E367,5)))<0,"-",)&"[hh]:mm")',
+                                 # '=SUM(E2:E367)',
+                                 number_format='[hh]":"mm')
+        self.set_cell_std_format(from_row=12, from_column=16,
+                                 text='=TEXT(ABS(SUM((-1+2*(LEFT(N12:O12)<>"-"))*(RIGHT(0&N12:O12,5)))),'
+                                      'IF(SUM((-1+2*(LEFT(N12:O12)<>"-"))*(RIGHT(0&N12:O12,5)))<0,"-",)&"[hh]:mm")',
+                                 # "=N12+O12",
+                                 number_format='[hh]":"mm')
 
         # header training
         self._worksheet.merge_cells(start_row=14, start_column=8, end_row=14, end_column=10)

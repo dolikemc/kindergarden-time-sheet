@@ -26,5 +26,6 @@ class BasicTestCase(unittest.TestCase):
         wb = load_workbook('test2.xlsx')
         print(wb.active.cell(2, 1).number_format)
         print(wb.active['E11'].value)
+        print(wb.active['I10'].value)
         for datat in wb.active.data_validations.dataValidation:
             print(datat)
