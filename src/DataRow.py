@@ -90,24 +90,19 @@ class DateHandler:
                 self._worksheet.cell(row=index + 2, column=6, value=day_row.name)
             else:
                 self._worksheet.cell(row=index + 2, column=4, value='00:00')
-                self._worksheet.cell(row=index + 2, column=4).number_format = '[hh]":"mm'
+                self._worksheet.cell(row=index + 2, column=4).number_format = '[hh]:mm'
                 date_with_hour = datetime(day_row.date.year, day_row.date.month, day_row.date.day,
                                           hour=hours[day_row.date.weekday()], minute=0, second=0)
                 self._worksheet.cell(row=index + 2, column=3, value=f"0{hours[day_row.date.weekday()]}:00")
-                self._worksheet.cell(row=index + 2, column=3).number_format = '[hh]":"mm'
+                self._worksheet.cell(row=index + 2, column=3).number_format = '[hh]:mm'
                 self._worksheet.cell(
                     row=index + 2, column=5,
                     value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>"",F{index + 2}=""),'
                           f'IF(C{index + 2}=0,D{index + 2}*1.5,'
-                    # f'D{index + 2}-C{index + 2}'
+                    #      f'D{index + 2}-C{index + 2}'
                           f'TEXT(ABS(D{index + 2}-C{index + 2}),'
-                          f'IF(D{index + 2}<C{index + 2},"-","")&"[hh]:mm")'
+                          f'IF(_xlfn.NUMBERVALUE(D{index + 2})<_xlfn.NUMBERVALUE(C{index + 2}),"-","")&"[hh]:mm")'
                           f'),"")')
-                # f'TEXT(ABS(D{index + 2}-C{index + 2}),IF(D{index + 2}<C{index + 2},"-",) &"hh:mm'
-                #
-                # =TEXT(ABS(C7-B7);WENN(B7<C7;"-";) &"hh:mm")
-
-                self._worksheet.cell(row=index + 2, column=5).number_format = '[hh]":"mm'
                 dv.add(self._worksheet.cell(row=index + 2, column=6))
 
             self._worksheet.cell(row=index + 2, column=1, value=day_row.date)
@@ -176,6 +171,7 @@ class DateHandler:
         self.set_cell_std_format(from_row=12, from_column=12, text="=J12-K12")
 
         # overtiem cells
+        # =TEXT(ABS(SUMME((-1+2*(LINKS(G11:G22)<>"-"))*(RECHTS(0&G11:G22;5))));WENN(SUMME((-1+2*(LINKS(G11:G22)<>"-"))*(RECHTS(0&G11:G22;5)))<0;"-";)&"[hh]:mm:ss")
         self.set_cell_std_format(from_row=12, from_column=14, number_format='[hh]":"mm')
         self.set_cell_std_format(from_row=12, from_column=15, text='=SUM(E2:E367)', number_format='[hh]":"mm')
         self.set_cell_std_format(from_row=12, from_column=16, text="=N12+O12", number_format='[hh]":"mm')
