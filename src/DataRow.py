@@ -148,6 +148,7 @@ class DateHandler:
             self._worksheet[cell[0]] = cell[1]
             self._worksheet[cell[0]].style = styles['Title']
             self._worksheet.column_dimensions[cell[0][0:1]].width = 20
+
         return dv
 
     def summary(self, name: str):
@@ -195,7 +196,9 @@ class DateHandler:
                                  '=TEXT(ABS(SUM(Q2:Q367)),IF(_xlfn.NUMBERVALUE(SUM(Q2:Q367))<0,"-","")&"[hh]:mm")',
                                  number_format='[hh]":"mm')
         self.set_cell_std_format(from_row=12, from_column=16,
-                                 text='=TEXT(ABS(N12+O12),IF(_xlfn.NUMBERVALUE(N12+O12)<0,"-","")&"[hh]:mm")',
+                                 # =IF(LEFT(N12)="-",-xlfn.NUMBERVALUE(RIGHT(0&N12,5)),xlfn.NUMBERVALUE(N12))
+                                 text='=TEXT(ABS(N12+SUM(Q2:Q367)),'
+                                      'IF(_xlfn.NUMBERVALUE(N12+SUM(Q2:Q367))<0,"-","")&"[hh]:mm")',
                                  # "=N12+O12",
                                  number_format='[hh]":"mm')
 
