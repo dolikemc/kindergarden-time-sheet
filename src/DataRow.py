@@ -197,14 +197,13 @@ class DateHandler:
                                  number_format='[hh]":"mm')
         self.set_cell_std_format(from_row=12, from_column=16,
                                  # =IF(LEFT(N12)="-",-xlfn.NUMBERVALUE(RIGHT(0&N12,5)),xlfn.NUMBERVALUE(N12))
-                                 text='=TEXT(ABS(N12+SUM(Q2:Q367)),'
-                                      'IF(_xlfn.NUMBERVALUE(N12+SUM(Q2:Q367))<0,"-","")&"[hh]:mm")',
+                                 text='=TEXT(ABS(SUM(Q2:Q367)+Q1),'
+                                      'IF(_xlfn.NUMBERVALUE(Q1+SUM(Q2:Q367))<0,"-","")&"[hh]:mm")',
                                  # "=N12+O12",
                                  number_format='[hh]":"mm')
 
-        self.set_cell_std_format(from_row=12, from_column=18,
-                                 text='=IF(LEFT(N12)="-",_xlfn.NUMBERVALUE(RIGHT(0&N12,5)),_xlfn.NUMBERVALUE(N12))',
-                                 number_format='[hh]":"mm')
+        self.set_cell_std_format(from_row=1, from_column=17,
+                                 text='=IF(LEFT(N12)="-",_xlfn.NUMBERVALUE(RIGHT(0&N12,5))*-1,_xlfn.NUMBERVALUE(N12))')
 
         # header training
         self._worksheet.merge_cells(start_row=14, start_column=8, end_row=14, end_column=10)
@@ -239,6 +238,8 @@ class DateHandler:
         self.set_cell_std_format(from_row=16, from_column=14, text='10')
         self.set_cell_std_format(from_row=16, from_column=15, text='=COUNTIF(F2:F367,"kindkrank")')
         self.set_cell_std_format(from_row=16, from_column=16, text="=N16-O16")
+
+        self._worksheet.column_dimensions['Q'].hidden = True
 
     def set_cell_std_format(self, from_row: int, from_column: int, style_number: int = None, text: str = None,
                             number_format: str = None) -> Cell:

@@ -28,5 +28,8 @@ class BasicTestCase(unittest.TestCase):
         print(wb.active['E11'].value)
         print(wb.active['I10'].value)
         print(wb.active['O12'].value)
+        print(wb.active.column_dimensions['Q'])
+        print(wb.active['Q1'])
+
         for datat in wb.active.data_validations.dataValidation:
             print(datat)
