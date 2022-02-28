@@ -88,7 +88,7 @@ class DateHandler:
                     self._worksheet.cell(row=index + 2, column=c).style = \
                         self._config.get('styles', ['Output', 'Output', 'Output'])[day_row.type - 1]
                 self._worksheet.cell(row=index + 2, column=6, value=day_row.name)
-                self._worksheet.cell(row=index + 2, column=5, value="00:00")
+                # self._worksheet.cell(row=index + 2, column=5, value="00:00")
 
             else:
                 self._worksheet.cell(row=index + 2, column=4, value='00:00')
@@ -103,6 +103,13 @@ class DateHandler:
                           f'TEXT(ABS(D{index + 2}-C{index + 2}),'
                           f'IF(_xlfn.NUMBERVALUE(D{index + 2})<_xlfn.NUMBERVALUE(C{index + 2}),"-","")&"[hh]:mm")'
                           f'),"")')
+                self._worksheet.cell(
+                    row=index + 2, column=17,
+                    value=f'=IF(AND(A{index + 2}<TODAY()-2,C{index + 2}<>"",F{index + 2}=""),'
+                          f'IF(C{index + 2}=0,D{index + 2}*1.5,'
+                          f'D{index + 2}-C{index + 2}'
+                          f'),"")')
+
                 dv.add(self._worksheet.cell(row=index + 2, column=6))
 
             self._worksheet.cell(row=index + 2, column=3).number_format = '[hh]:mm'
@@ -115,12 +122,11 @@ class DateHandler:
                 self._worksheet.cell(row=index + 2, column=c).font = self.font
                 self._worksheet.cell(row=index + 2, column=c).alignment = Alignment(horizontal="center")
 
-            if not self._worksheet.cell(row=index + 2, column=4).value:
-                print(self._worksheet.cell(row=index + 2, column=4).value)
-                self._worksheet.cell(row=index + 2, column=5).font = Font(
-                    color=self._worksheet.cell(row=index + 2, column=5).fill.fgColor,
-                    # '00FFFFCC',
-                    size=16)
+            # if not self._worksheet.cell(row=index + 2, column=4).value:
+            #    self._worksheet.cell(row=index + 2, column=5).font = Font(
+            #        color=self._worksheet.cell(row=index + 2, column=5).fill.fgColor,
+            #        # '00FFFFCC',
+            #        size=16)
 
         return self._worksheet.max_row
 
@@ -181,15 +187,15 @@ class DateHandler:
 
         # overtiem cells
         # =TEXT(ABS(SUMME((-1+2*(LINKS(G11:G22)<>"-"))*(RECHTS(0&G11:G22;5))));WENN(SUMME((-1+2*(LINKS(G11:G22)<>"-"))*(RECHTS(0&G11:G22;5)))<0;"-";)&"[hh]:mm:ss")
-        self.set_cell_std_format(from_row=12, from_column=14, number_format='[hh]":"mm')
+        self.set_cell_std_format(from_row=12, from_column=14, text="00:00", number_format='[hh]":"mm')
         self.set_cell_std_format(from_row=12, from_column=15,
-                                 text='=TEXT(ABS(SUM((-1+2*(LEFT(E2:E367)<>"-"))*(RIGHT(0&E2:E367,5)))),'
-                                      'IF(SUM((-1+2*(LEFT(E2:E367)<>"-"))*(RIGHT(0&E2:E367,5)))<0,"-",)&"[hh]:mm")',
-                                 # '=SUM(E2:E367)',
+                                 text=
+                                 # '=TEXT(ABS(SUM((-1+2*(LEFT(E2:E367)<>"-"))*(RIGHT(0&E2:E367,5)))),'
+                                 #     'IF(SUM((-1+2*(LEFT(E2:E367)<>"-"))*(RIGHT(0&E2:E367,5)))<0,"-",)&"[hh]:mm")',
+                                 '=TEXT(ABS(SUM(Q2:Q367)),IF(_xlfn.NUMBERVALUE(SUM(Q2:Q367))<0,"-","")&"[hh]:mm")',
                                  number_format='[hh]":"mm')
         self.set_cell_std_format(from_row=12, from_column=16,
-                                 text='=TEXT(ABS(SUM((-1+2*(LEFT(N12:O12)<>"-"))*(RIGHT(0&N12:O12,5)))),'
-                                      'IF(SUM((-1+2*(LEFT(N12:O12)<>"-"))*(RIGHT(0&N12:O12,5)))<0,"-",)&"[hh]:mm")',
+                                 text='=TEXT(ABS(N12+O12),IF(_xlfn.NUMBERVALUE(N12+O12)<0,"-","")&"[hh]:mm")',
                                  # "=N12+O12",
                                  number_format='[hh]":"mm')
 

@@ -27,5 +27,6 @@ class BasicTestCase(unittest.TestCase):
         print(wb.active.cell(2, 1).number_format)
         print(wb.active['E11'].value)
         print(wb.active['I10'].value)
+        print(wb.active['O12'].value)
         for datat in wb.active.data_validations.dataValidation:
             print(datat)
