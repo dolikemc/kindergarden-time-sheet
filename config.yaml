@@ -38,6 +38,7 @@ holidays:
       - '19/08'
   - name: 'Pädagogischer Tag'
     dates:
+      - '06/05'
       - '26/09'
 members:
   - name: 'Jessica P'

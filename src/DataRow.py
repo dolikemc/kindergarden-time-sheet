@@ -83,14 +83,14 @@ class DateHandler:
             if day_row.date > month_day:
                 return 1
 
-            if day_row.type:
-                for c in range(1, 7):
+            if day_row.type in (1, 2, 3):
+                for c in range(1, 8):
                     self._worksheet.cell(row=index + 2, column=c).style = \
                         self._config.get('styles', ['Output', 'Output', 'Output'])[day_row.type - 1]
-                self._worksheet.cell(row=index + 2, column=6, value=day_row.name)
+                # self._worksheet.cell(row=index + 2, column=6, value=day_row.name)
                 # self._worksheet.cell(row=index + 2, column=5, value="00:00")
 
-            else:
+            if day_row.type in (0, 3):
                 self._worksheet.cell(row=index + 2, column=4, value='00:00')
                 self._worksheet.cell(row=index + 2, column=4).number_format = '[hh]:mm'
 
@@ -118,7 +118,10 @@ class DateHandler:
             self._worksheet.cell(row=index + 2, column=2, value=day_row.date.strftime('%a'))
             self._worksheet.row_dimensions[index + 2].height = 25
 
-            for c in range(1, 7):
+            if day_row.type in (1, 2, 3):
+                self._worksheet.cell(row=index + 2, column=7, value=day_row.name)
+
+            for c in range(1, 8):
                 self._worksheet.cell(row=index + 2, column=c).font = self.font
                 self._worksheet.cell(row=index + 2, column=c).alignment = Alignment(horizontal="center")
 
@@ -143,7 +146,7 @@ class DateHandler:
         dv = DataValidation(type='list', formula1='"krank,urlaub,kindkrank,fortbildung"')
         self._worksheet.add_data_validation(dv)
         header = [('A1', 'Datum'), ('B1', 'Wochentag'), ('C1', 'Soll'), ('D1', 'Ist'), ('E1', 'Saldo'),
-                  ('F1', 'Abwesenheit')]
+                  ('F1', 'Abwesenheit'), ('G1', 'Kommentar')]
         for cell in header:
             self._worksheet[cell[0]] = cell[1]
             self._worksheet[cell[0]].style = styles['Title']
