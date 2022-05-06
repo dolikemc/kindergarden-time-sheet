@@ -23,7 +23,7 @@ class BasicTestCase(unittest.TestCase):
         wb.save('test.xlsx')
 
     def test_validator(self):
-        wb = load_workbook('test2.xlsx')
+        wb = load_workbook('test.xlsx')
         print(wb.active.cell(2, 1).number_format)
         print(wb.active['E11'].value)
         print(wb.active['I10'].value)
