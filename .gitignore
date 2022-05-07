@@ -132,3 +132,4 @@ dmypy.json
 .idea
 *.xlsx
 
+/config_giro.yaml

@@ -1,6 +1,8 @@
 # settings and data for the generator
 name: 'Girotondo e.V.'
 country: 'DE'
+update_delay: 0
+overtime_factor: 1.5
 subdiv: 'BY'
 year: 2022
 language: 'DE'
@@ -41,21 +43,5 @@ holidays:
       - '06/05'
       - '26/09'
 members:
-  - name: 'Jessica P'
-    hours: [ 8,8,8,8,7 ]
-  - name: 'Joachim'
-    hours: [ 8,8,8,8,7 ]
-    stop: '30/06'
-  - name: 'Isabella'
-    hours: [ 8,8,8,8,7 ]
-  - name: 'Monica'
-    hours: [ 6,0,6,6,6 ]
-    stop: '30/06'
-  - name: 'Sara'
-    hours: [ 8,8,8,8,7 ]
-  - name: 'Chiara'
-    hours: [ 6,6,6,6,6 ]
-  - name: 'Gordana'
-    hours: [ 8,7,8,7,0 ]
-  - name: 'Jessica C'
+  - name: 'Mustermann'
     hours: [ 8,8,8,8,7 ]
