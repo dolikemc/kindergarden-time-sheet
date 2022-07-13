@@ -2,8 +2,14 @@
 A generator for time table spread sheet for a kindergarden tesm
 
 ## install
-You need a python installation at least >=3.8 with pip
+You need a python installation at least >=3.8 with pip. You should use git to clone the project locally.
 
-    pip install -i requirements.txt
+    git clone https://github.com/dolikemc/kindergarden-time-sheet.git
+    cd kindergarden-time-sheet 
+    pip install -r requirements.txt
+
+## edit yml file
+
+## run
 
     
