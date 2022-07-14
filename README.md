@@ -1,5 +1,5 @@
 # kindergarden-time-sheet
-A generator for time table spread sheet for a kindergarden tesm
+A generator of time table spread sheet for a kindergarden team
 
 ## install
 You need a python installation at least >=3.8 with pip. You should use git to clone the project locally.
