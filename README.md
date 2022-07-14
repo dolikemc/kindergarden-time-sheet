@@ -12,4 +12,6 @@ You need a python installation at least >=3.8 with pip. You should use git to cl
 
 ## run
 
-    
+    python generator.py
+   
+This will result in a spreadsheet called 'test.xlsx'
